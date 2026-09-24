@@ -27,7 +27,7 @@ Open `index.html` (or serve the folder) and press **Start fight**.
 
 **Healer phase** (*Kill Jad + healers*)
 - Jad has 250 hp. At half, four Yt-HurKots spawn beside him and heal him 5 hp/tick each.
-- Click a healer to shoot it once: that draws it — it stops healing, walks to you over 5 ticks and melees for up to 14 every 4 ticks (Protect from Melee blocks it, but you're busy). Click Jad again to resume on him, or finish the healer (60 hp).
+- Click a healer to shoot it once: that draws it — it stops healing for good, walks to you over 5 ticks and stays on you, meleeing for up to 14 every 4 ticks (Protect from Melee blocks it, but you're busy). It never goes back to Jad. Click Jad again to resume on him, or finish the healer (60 hp).
 - If Jad gets back to full while any healer is dead, the dead ones respawn.
 - Win screen on the kill; the summary reports how fast you drew all four, how much he was healed, and what the healers did to you.
 

@@ -197,7 +197,8 @@
       hctx.beginPath(); hctx.arc(x, y, 10, 0, Math.PI * 2); hctx.fill(); hctx.stroke();
       if (h.hp < HEALER_HP) { hctx.fillStyle = '#3b0d05'; hctx.fillRect(x - 14, y + 13, 28, 4); hctx.fillStyle = '#3fbf3f'; hctx.fillRect(x - 14, y + 13, 28 * h.hp / HEALER_HP, 4); }
       hctx.font = '13px "RuneScape Chat", monospace';
-      line(h.state === 'healing' ? 'Yt-HurKot (healing)' : h.state === 'walking' ? 'Yt-HurKot (drawn)' : 'Yt-HurKot', x - 30, y - 28, h.state === 'healing' ? '#7dff9a' : '#ffff66');
+      line(h.state === 'healing' ? 'Yt-HurKot · healing Jad' : h.state === 'walking' ? 'Yt-HurKot · coming to you' : 'Yt-HurKot · on you', x - 40, y - 28, h.state === 'healing' ? '#7dff9a' : h.state === 'walking' ? '#ffff66' : '#ffb83f');
+      if (h.state !== 'healing') { hctx.strokeStyle = 'rgba(255,184,63,.35)'; hctx.lineWidth = 1; hctx.setLineDash([2, 4]); hctx.beginPath(); hctx.moveTo(x, y); hctx.lineTo(PLAYER_POS[0], PLAYER_POS[1] + 10); hctx.stroke(); hctx.setLineDash([]); }
       hctx.font = '15px "RuneScape Chat", monospace';
     });
     // floating hitsplats on targets
@@ -264,7 +265,7 @@
         say('TzTok-Jad has been defeated! You receive a fire cape.', true); clearTimeout(S.attackTimer); setTimeout(() => endFight('won'), 1500);
       }
     } else {
-      if (tgt.state === 'healing') { tgt.state = 'walking'; tgt.drawnTick = S.tick; say('The Yt-HurKot turns to attack you.'); if (S.healers.every((h) => h.state !== 'healing')) S.stats.drawMs = performance.now() - S.healersAt; }
+      if (tgt.state === 'healing') { tgt.state = 'walking'; tgt.drawnTick = S.tick; say('The Yt-HurKot stops healing Jad and turns on you.'); if (S.healers.every((h) => h.state !== 'healing')) S.stats.drawMs = performance.now() - S.healersAt; }
       tgt.hp -= dmg; S.stats.dealt += dmg;
       S.floats.push({ x: tgt.pos[0], y: tgt.pos[1], value: dmg, until: performance.now() + 1200 });
       if (tgt.hp <= 0) { tgt.state = 'dead'; S.target = null; say('You kill the Yt-HurKot.'); }
@@ -387,7 +388,7 @@
           if (h.state === 'walking') {
             const f = Math.min(1, (S.tick - h.drawnTick) / HEALER_WALK_TICKS);
             h.pos = [h.home[0] + (h.dest[0] - h.home[0]) * f, h.home[1] + (h.dest[1] - h.home[1]) * f];
-            if (f >= 1) { h.state = 'attacking'; h.nextHit = S.tick + 1; }
+            if (f >= 1) { h.state = 'attacking'; h.nextHit = S.tick + 1; say('The Yt-HurKot is on you now — it stays on you until it dies.'); }
           }
           if (h.state === 'attacking' && S.tick >= h.nextHit) {
             h.nextHit = S.tick + HEALER_SPEED;
