@@ -57,10 +57,12 @@
     get(k, d) { try { const v = localStorage.getItem('jadsim.' + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
     set(k, v) { try { localStorage.setItem('jadsim.' + k, JSON.stringify(v)); } catch {} },
   };
+  const SETTINGS_VERSION = 2;
   const settings = Object.assign({
-    lvl: 'max', bonus: 0, inv: 'packed', ping: 40, window: 3400, fight: 'endless', weapon: 'blowpipe',
-    volume: 0.5, blind: false, lateRange: true, keyInv: 'F4', keyPray: 'F5',
+    lvl: 'max', bonus: 0, inv: 'packed', ping: 40, window: 3400, fight: 'healers', weapon: 'blowpipe',
+    volume: 0.5, blind: false, lateRange: true, keyInv: 'Escape', keyPray: '1',
   }, store.get('settings', {}));
+  if ((settings.v || 1) < SETTINGS_VERSION) { settings.fight = 'healers'; settings.keyInv = 'Escape'; settings.keyPray = '1'; settings.v = SETTINGS_VERSION; store.set('settings', settings); }
   let bestStreak = store.get('bestStreak', 0);
 
   function applySettingsToForm() {
@@ -89,7 +91,7 @@
       potions: INVENTORIES[settings.inv](), potCooldown: 0,
       cooldown: 2, attack: null, attackId: 0, splat: null,
       jadHp: JAD_HP, healers: [], healersSpawned: false, healersAt: 0, jadDead: false, dead: false,
-      target: null, playerCd: 0, floats: [],
+      target: null, playerCd: 0, floats: [], usedTab: false,
       stats: { attacks: 0, blocked: 0, missed: 0, switches: 0, rxSum: 0, rxBest: null, streak: 0, best: 0, dmg: 0, brews: 0, restores: 0, prayUsed: 0, healed: 0, dealt: 0, hits: 0, shots: 0, drawMs: null, healerDmg: 0 },
       chat: [],
     });
@@ -174,7 +176,8 @@
     // target box on Jad
     if (S.target === 'jad') { hctx.strokeStyle = 'rgba(255,255,0,.85)'; hctx.lineWidth = 2; hctx.strokeRect(JAD_BOX.x, JAD_BOX.y, JAD_BOX.w, JAD_BOX.h); }
     else if (S.running && !S.jadDead) { hctx.strokeStyle = 'rgba(255,255,255,.25)'; hctx.lineWidth = 1; hctx.strokeRect(JAD_BOX.x, JAD_BOX.y, JAD_BOX.w, JAD_BOX.h); }
-    if (S.running && !S.target && !S.jadDead && S.tick < 12) line('click Jad to attack', JAD_BOX.x + 4, JAD_BOX.y + JAD_BOX.h + 4, '#ffff66');
+    if (S.running && !S.jadDead && S.stats.shots === 0) { const blink = Math.floor(performance.now() / 500) % 2; line('← click TzTok-Jad to attack', JAD_BOX.x + JAD_BOX.w + 6, JAD_BOX.y + 40, blink ? '#ffff66' : '#ffb83f'); }
+    if (S.running && !S.usedTab) { const show = (k) => (k === 'Escape' ? 'Esc' : k); line(`${show(settings.keyInv)} inventory · ${show(settings.keyPray)} prayer · or click the tabs →`, VIEW.x + 8, VIEW.y + VIEW.h - 46, '#e8dcc0'); }
     // Jad hp
     if (settings.fight === 'healers') {
       const bx = VIEW.x + 10, by = VIEW.y + VIEW.h - 26, bw = 160;
@@ -275,7 +278,7 @@
     if (ev.button !== 0) return;
     const [x, y] = stageXY(ev);
     // tab icons
-    if (y > 169 && y < 203 && x > 527 && x < 765) { S.invtab = x >= 697 ? 1 : 0; drawTab(); return; }
+    if (y > 169 && y < 203 && x > 527 && x < 765) { S.invtab = x >= 697 ? 1 : 0; S.usedTab = true; drawTab(); return; }
     // inventory
     if (S.invtab === 0 && x >= INV.x && x < INV.x + INV.cols * INV.dx && y >= INV.y && y < INV.y + INV.rows * INV.dy) {
       drinkSlot(INV.cols * Math.floor((y - INV.y) / INV.dy) + Math.floor((x - INV.x) / INV.dx)); return;
@@ -305,8 +308,8 @@
     const k = e.key.length === 1 ? e.key.toUpperCase() : e.key;
     const kk = e.key === ' ' ? 'Space' : k;
     // tab keys work at any time, fight or not, so you can test them from the setup screen
-    if (kk === settings.keyInv) { e.preventDefault(); S.invtab = 0; drawTab(); return; }
-    if (kk === settings.keyPray) { e.preventDefault(); S.invtab = 1; drawTab(); return; }
+    if (kk === settings.keyInv) { e.preventDefault(); S.invtab = 0; S.usedTab = true; drawTab(); return; }
+    if (kk === settings.keyPray) { e.preventDefault(); S.invtab = 1; S.usedTab = true; drawTab(); return; }
     if (e.target.matches && e.target.matches('input, button') && !S.running) return;
     if (S.running && ((e.key === ' ' && settings.keyInv !== 'Space' && settings.keyPray !== 'Space') || k === 'P')) { e.preventDefault(); togglePause(); return; }
     // Esc stops only while it isn't bound to a tab; End always stops
