@@ -60,7 +60,7 @@
   const SETTINGS_VERSION = 2;
   const settings = Object.assign({
     lvl: 'max', bonus: 0, inv: 'packed', ping: 40, window: 3400, fight: 'healers', weapon: 'blowpipe',
-    volume: 0.5, blind: false, lateRange: true, keyInv: 'Escape', keyPray: '1',
+    volume: 0.5, blind: false, lateRange: true, keyInv: 'Escape', keyPray: '1', autoReturn: true,
   }, store.get('settings', {}));
   if ((settings.v || 1) < SETTINGS_VERSION) { settings.fight = 'healers'; settings.keyInv = 'Escape'; settings.keyPray = '1'; settings.v = SETTINGS_VERSION; store.set('settings', settings); }
   let bestStreak = store.get('bestStreak', 0);
@@ -69,14 +69,14 @@
     for (const name of ['lvl', 'bonus', 'inv', 'ping', 'window', 'fight', 'weapon']) {
       const el = document.querySelector(`input[name="${name}"][value="${settings[name]}"]`); if (el) el.checked = true;
     }
-    $('volrange').value = settings.volume; $('blind').checked = settings.blind; $('lateRange').checked = settings.lateRange;
+    $('volrange').value = settings.volume; $('blind').checked = settings.blind; $('lateRange').checked = settings.lateRange; $('autoReturn').checked = settings.autoReturn;
     const show = (k) => (k === 'Escape' ? 'Esc' : k); $('key-inv').textContent = show(settings.keyInv); $('key-pray').textContent = show(settings.keyPray);
     $('bestline').textContent = bestStreak ? `Best streak: ${bestStreak}` : '';
   }
   function readForm() {
     for (const name of ['lvl', 'inv', 'fight', 'weapon']) settings[name] = document.querySelector(`input[name="${name}"]:checked`).value;
     for (const name of ['bonus', 'ping', 'window']) settings[name] = Number(document.querySelector(`input[name="${name}"]:checked`).value);
-    settings.volume = Number($('volrange').value); settings.blind = $('blind').checked; settings.lateRange = $('lateRange').checked;
+    settings.volume = Number($('volrange').value); settings.blind = $('blind').checked; settings.lateRange = $('lateRange').checked; settings.autoReturn = $('autoReturn').checked;
     store.set('settings', settings);
   }
   function setVolume(v) { const a = v * v * v; Object.values(snd).forEach((s) => { s.volume = a; }); }
@@ -90,7 +90,7 @@
       maxHp: hp, hp, maxPray: pr, pray: pr, prayprot: 0, invtab: 1,
       potions: INVENTORIES[settings.inv](), potCooldown: 0,
       cooldown: 2, attack: null, attackId: 0, splat: null,
-      jadHp: JAD_HP, healers: [], healersSpawned: false, healersAt: 0, jadDead: false, dead: false,
+      jadHp: JAD_HP, healers: [], healersSpawned: false, healersReset: false, healersAt: 0, jadDead: false, dead: false,
       target: null, playerCd: 0, floats: [], usedTab: false,
       stats: { attacks: 0, blocked: 0, missed: 0, switches: 0, rxSum: 0, rxBest: null, streak: 0, best: 0, dmg: 0, brews: 0, restores: 0, prayUsed: 0, healed: 0, dealt: 0, hits: 0, shots: 0, drawMs: null, healerDmg: 0 },
       chat: [],
@@ -265,7 +265,7 @@
         say('TzTok-Jad has been defeated! You receive a fire cape.', true); clearTimeout(S.attackTimer); setTimeout(() => endFight('won'), 1500);
       }
     } else {
-      if (tgt.state === 'healing') { tgt.state = 'walking'; tgt.drawnTick = S.tick; say('The Yt-HurKot stops healing Jad and turns on you.'); if (S.healers.every((h) => h.state !== 'healing')) S.stats.drawMs = performance.now() - S.healersAt; }
+      if (tgt.state === 'healing') { tgt.state = 'walking'; tgt.drawnTick = S.tick; say('The Yt-HurKot stops healing Jad and turns on you.'); if (settings.autoReturn && !S.jadDead) S.target = 'jad'; if (S.healers.every((h) => h.state !== 'healing')) S.stats.drawMs = performance.now() - S.healersAt; }
       tgt.hp -= dmg; S.stats.dealt += dmg;
       S.floats.push({ x: tgt.pos[0], y: tgt.pos[1], value: dmg, until: performance.now() + 1200 });
       if (tgt.hp <= 0) { tgt.state = 'dead'; S.target = null; say('You kill the Yt-HurKot.'); }
@@ -377,6 +377,11 @@
       if (S.target && S.playerCd <= 0 && !S.dead) playerAttack();
       // healers
       if (settings.fight === 'healers' && !S.dead && !S.jadDead) {
+        if (S.healersReset && S.jadHp <= JAD_HP / 2) {
+          S.healersReset = false;
+          S.healers.forEach((h) => { if (h.state === 'dead') { h.state = 'healing'; h.hp = HEALER_HP; h.pos = h.home.slice(); h.born = S.tick; } });
+          say('The Yt-HurKots you killed return to heal TzTok-Jad!', true);
+        }
         if (!S.healersSpawned && S.jadHp <= JAD_HP / 2) {
           S.healersSpawned = true; S.healersAt = performance.now();
           S.healers = HEALER_HOME.map((pos, i) => ({ i, pos: pos.slice(), home: pos, dest: HEALER_DRAWN[i], hp: HEALER_HP, state: 'healing', born: S.tick, drawnTick: 0, nextHit: 0 }));
@@ -400,9 +405,9 @@
         });
         if (heal) {
           const amt = Math.min(JAD_HP - S.jadHp, heal); S.jadHp += amt; S.stats.healed += amt;
-          if (S.jadHp >= JAD_HP && S.healers.some((h) => h.state === 'dead')) {
-            S.healers.forEach((h) => { if (h.state === 'dead') { h.state = 'healing'; h.hp = HEALER_HP; h.pos = h.home.slice(); h.born = S.tick; } });
-            say('TzTok-Jad is back to full health — the Yt-HurKots return!', true);
+          if (S.jadHp >= JAD_HP && S.healers.some((h) => h.state === 'dead') && !S.healersReset) {
+            S.healersReset = true;
+            say('TzTok-Jad is back to full health — the healers you killed will return when he drops below half again.', true);
           }
         }
       }
