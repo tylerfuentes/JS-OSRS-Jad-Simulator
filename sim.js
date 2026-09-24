@@ -302,11 +302,12 @@
       { const k = e.key.length === 1 ? e.key.toUpperCase() : e.key === ' ' ? 'Space' : e.key; if (binding.dataset.bind === 'inv') settings.keyInv = k; else settings.keyPray = k; binding.textContent = k === 'Escape' ? 'Esc' : k; store.set('settings', settings); }
       binding.classList.remove('listening'); binding = null; return;
     }
-    if (e.target.matches && e.target.matches('input, button') && !S.running) return;
     const k = e.key.length === 1 ? e.key.toUpperCase() : e.key;
     const kk = e.key === ' ' ? 'Space' : k;
+    // tab keys work at any time, fight or not, so you can test them from the setup screen
     if (kk === settings.keyInv) { e.preventDefault(); S.invtab = 0; drawTab(); return; }
     if (kk === settings.keyPray) { e.preventDefault(); S.invtab = 1; drawTab(); return; }
+    if (e.target.matches && e.target.matches('input, button') && !S.running) return;
     if (S.running && ((e.key === ' ' && settings.keyInv !== 'Space' && settings.keyPray !== 'Space') || k === 'P')) { e.preventDefault(); togglePause(); return; }
     // Esc stops only while it isn't bound to a tab; End always stops
     if (S.running && (e.key === 'End' || (e.key === 'Escape' && settings.keyInv !== 'Escape' && settings.keyPray !== 'Escape'))) { e.preventDefault(); endFight('stopped'); return; }
