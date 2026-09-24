@@ -32,7 +32,7 @@ Open `index.html` (or serve the folder) and press **Start fight**.
 - Win screen on the kill; the summary reports how fast you drew all four, how much he was healed, and what the healers did to you.
 
 **Quality of life**
-- Rebindable inventory / prayer keys (defaults F4 / F5, OSRS's own). Space or P pauses, Esc stops, Enter starts.
+- Rebindable inventory / prayer keys (defaults F4 / F5, OSRS's own). Any key works, Esc included — Mac users, either enable "Use F1, F2, etc. as standard function keys" in System Settings or bind something like Esc + 1 and mirror it with RuneLite's Key Remapping plugin. P pauses, End stops, Enter starts.
 - The 765×503 interface scales to the window.
 - Settings persist. No `eval`, no string-built timers; a drift-corrected tick loop.
 - `window.jadsim` exposes live state and settings for tooling.

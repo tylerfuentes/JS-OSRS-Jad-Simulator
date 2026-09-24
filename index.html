@@ -72,18 +72,18 @@
         <div class="row"><span>Keys</span>
           <label>Inventory <button class="rsbtn keybind" type="button" id="key-inv" data-bind="inv">F4</button></label>
           <label>Prayer <button class="rsbtn keybind" type="button" id="key-pray" data-bind="pray">F5</button></label>
-          <span style="color:#b3a88f;font-size:12px">click, then press</span>
+          <span style="color:#b3a88f;font-size:12px">click, then press — Esc, 1, Q… all fine</span>
         </div>
 
         <div class="actions">
           <button class="rsbtn primary" type="button" id="startfight">Start fight</button>
           <span id="bestline" style="color:#b3a88f"></span>
         </div>
-        <p class="credit">Space / P pause · Esc stops. Sim by <a href="https://runeapps.org/jadsim_app" target="_blank" rel="noopener">runeapps.org</a>, OSRS asset swap by <a href="https://github.com/downthecrop/JS-OSRS-Jad-Simulator" target="_blank" rel="noopener">@downthecrop</a>. This fork adds OSRS numbers, reaction stats and the healer phase.</p>
+        <p class="credit">P pauses · End stops (Esc too, unless you bind it). Sim by <a href="https://runeapps.org/jadsim_app" target="_blank" rel="noopener">runeapps.org</a>, OSRS asset swap by <a href="https://github.com/downthecrop/JS-OSRS-Jad-Simulator" target="_blank" rel="noopener">@downthecrop</a>. This fork adds OSRS numbers, reaction stats and the healer phase.</p>
       </section>
 
       <button id="stopfight" class="rsbtn" type="button" hidden>Stop fight</button>
-      <span id="pausehint" hidden>Space pauses · Esc stops</span>
+      <span id="pausehint" hidden>P pauses · End stops</span>
 
       <section id="summary" class="overlay" hidden aria-label="Fight summary">
         <h1 id="summary-title">Fight over</h1>
@@ -96,6 +96,6 @@
       </section>
     </div>
   </div>
-  <script src="sim.js?v=2"></script>
+  <script src="sim.js?v=3"></script>
 </body>
 </html>

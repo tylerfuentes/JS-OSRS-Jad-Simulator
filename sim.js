@@ -68,7 +68,7 @@
       const el = document.querySelector(`input[name="${name}"][value="${settings[name]}"]`); if (el) el.checked = true;
     }
     $('volrange').value = settings.volume; $('blind').checked = settings.blind; $('lateRange').checked = settings.lateRange;
-    $('key-inv').textContent = settings.keyInv; $('key-pray').textContent = settings.keyPray;
+    const show = (k) => (k === 'Escape' ? 'Esc' : k); $('key-inv').textContent = show(settings.keyInv); $('key-pray').textContent = show(settings.keyPray);
     $('bestline').textContent = bestStreak ? `Best streak: ${bestStreak}` : '';
   }
   function readForm() {
@@ -297,16 +297,18 @@
   document.querySelectorAll('.keybind').forEach((b) => b.addEventListener('click', () => { binding = b; b.classList.add('listening'); b.textContent = '…'; }));
   window.addEventListener('keydown', (e) => {
     if (binding) {
-      e.preventDefault(); if (e.key === 'Escape') { binding.textContent = binding.dataset.bind === 'inv' ? settings.keyInv : settings.keyPray; }
-      else { const k = e.key.length === 1 ? e.key.toUpperCase() : e.key; if (binding.dataset.bind === 'inv') settings.keyInv = k; else settings.keyPray = k; binding.textContent = k; store.set('settings', settings); }
+      e.preventDefault();
+      { const k = e.key.length === 1 ? e.key.toUpperCase() : e.key === ' ' ? 'Space' : e.key; if (binding.dataset.bind === 'inv') settings.keyInv = k; else settings.keyPray = k; binding.textContent = k === 'Escape' ? 'Esc' : k; store.set('settings', settings); }
       binding.classList.remove('listening'); binding = null; return;
     }
     if (e.target.matches && e.target.matches('input, button') && !S.running) return;
     const k = e.key.length === 1 ? e.key.toUpperCase() : e.key;
-    if (k === settings.keyInv) { e.preventDefault(); S.invtab = 0; drawTab(); return; }
-    if (k === settings.keyPray) { e.preventDefault(); S.invtab = 1; drawTab(); return; }
-    if (S.running && (e.key === ' ' || k === 'P')) { e.preventDefault(); togglePause(); return; }
-    if (S.running && e.key === 'Escape') { e.preventDefault(); endFight('stopped'); return; }
+    const kk = e.key === ' ' ? 'Space' : k;
+    if (kk === settings.keyInv) { e.preventDefault(); S.invtab = 0; drawTab(); return; }
+    if (kk === settings.keyPray) { e.preventDefault(); S.invtab = 1; drawTab(); return; }
+    if (S.running && ((e.key === ' ' && settings.keyInv !== 'Space' && settings.keyPray !== 'Space') || k === 'P')) { e.preventDefault(); togglePause(); return; }
+    // Esc stops only while it isn't bound to a tab; End always stops
+    if (S.running && (e.key === 'End' || (e.key === 'Escape' && settings.keyInv !== 'Escape' && settings.keyPray !== 'Escape'))) { e.preventDefault(); endFight('stopped'); return; }
     if (!S.running && e.key === 'Enter' && !$('setup').hidden) { e.preventDefault(); startFight(); }
   });
 
