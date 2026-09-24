@@ -1,96 +1,101 @@
-<!DOCTYPE HTML>
-<html>
-   <head>
-      <title>Jad Simulator Fight Practice Tool/Sounds and F-Keys</title>
-      <link rel="icon" type="image/png" href="favicon.png">
-      <script type="text/javascript" src="scripts.js"></script>
-      <script type="text/javascript" src="fkeyfix.js"></script>
-      <style>
-         @font-face {
-         font-family: 'RuneScape Chat';
-         src: url('RuneScape-Chat.woff2') format('woff2'),
-         url('RuneScape-Chat.woff') format('woff');
-         font: 1rem monospace;
-         font-display: swap;
-         }
-         #chatbox{
-         font-family: 'RuneScape Chat';
-         z-index:99;
-         position: relative;
-         top:372px;
-         left:15px;
-         white-space: pre-line;
-         font-size:16px;
-         color:black;
-         }
-      </style>
-   </head>
-   <body style="background-color:black; overflow:hidden; font-family:'RuneScape Chat';">
-      <div style="position:absolute; left:50%; margin-left:-383px; margin-top:0px; margin-bottom:0px; top:0px;">
-         <div id="chatbox">
-            <p>Jad Simulator OSRS/Jad Fight Practice Tool with Sounds and F-Keys!
-               Practice prayer switching against Jad in the Old School Runescape Fight Cave
-               If this helped you get your firecap follow @downthecrop on <a target="_new" href="https://twitter.com/downthecrop">Twitter</a>/<a target="_new" href="https://twitch.tv/downthecrop">Twitch</a>/<a target="_new" href="https://youtube.com/c/downthecrop">YouTube</a>
-            </p>
-         </div>
-         <div id="app" style="position:absolute; top:0px; left:0px;" onclick="klik(event)" onrightclick="return false">
-            <canvas id="maincvs" style="position:absolute; left:0px; top:0px; z-index:10;" width="765" height="503"></canvas>
-            <div id="vids">
-               <video style="position:absolute; left:4px; top:4px; display:block; z-index:1;" id="mageattack" preload="auto">
-                  <source src="jf_mage.mp4" type='video/mp4'>
-               </video>
-               <video style="position:absolute; left:4px; top:4px; display:block; z-index:1;" id="rangeattack" preload="auto">
-                  <source src="jf_range.mp4" type='video/mp4'>
-               </video>
-            </div>
-            <div id="audio">
-               <audio id="a_mage" preload>
-                  <source src="a_mage.ogg" type="audio/ogg">
-               </audio>
-               <audio id="a_range" preload>
-                  <source src="a_range.ogg" type="audio/ogg">
-               </audio>
-               <audio id="a_deflect" preload>
-                  <source src="a_deflect.ogg" type="audio/ogg">
-               </audio>
-               <audio id="a_potion" preload>
-                  <source src="a_potion.ogg" type="audio/ogg">
-               </audio>
-            </div>
-         </div>
-         <div id="controlls" style="box-shadow: 5px 5px 20px; black; z-index: 11;position:absolute; top: 90px; left: 110px; border: 1px solid; width:260px; height:163px;background: #FFFFFF;">
-            <div title="Select the type of prayer book.">
-               <div style="position:absolute; top:10px; left:10px"><input type="radio" name="pray" value="0"" checked> Prayers</div>
-            </div>
-            <div title="Choose the distance of the fight.">
-               <div style="position:absolute; top:30px; left:10px"><input type="radio" name="dist" value="0" onchange="mset_mode(this.value,-1)" checked> Ranged/Mage</div>
-            </div>
-            <div title="Choose the type of Jad to fight.">
-               <div style="position:absolute; top:50px; left:10px"><input type="radio" name="jad" value="0" onchange="mset_mode(-1,this.value)" checked> TzTok-Jad</div>
-            </div>
-            <div title="Select the levels of your character.">
-               <div style="position:absolute; top:70px; left:10px"><input type="radio" name="lvl" value="0" onchange="mset_level(this.value)" checked> Maxed</div>
-               <div style="position:absolute; top:70px; left:90px"><input type="radio" name="lvl" value="1" onchange="mset_level(this.value)"> Med</div>
-               <div style="position:absolute; top:70px; left:170px"><input type="radio" name="lvl" value="2" onchange="mset_level(this.value)"> Pure</div>
-            </div>
-            <div title="Select the amount of supplies in your inventory.">
-               <div style="position:absolute; top:90px; left:10px"><input type="radio" name="inv" value="0" onchange="mset_inv(this.value)" checked> Packed</div>
-               <div style="position:absolute; top:90px; left:90px"><input type="radio" name="inv" value="1" onchange="mset_inv(this.value)"> Normal</div>
-               <div style="position:absolute; top:90px; left:170px"><input type="radio" name="inv" value="2" onchange="mset_inv(this.value)"> Empty</div>
-            </div>
-            <div title="Select the connection delay in miliseconds (ping). You can find the ping of a world on the world select list ingame.">
-               <div style="position:absolute; top:110px; left:10px"><input type="radio" name="ping" value="0" onchange="mset_ping(this.value)" checked> 40ms</div>
-               <div style="position:absolute; top:110px; left:90px"><input type="radio" name="ping" value="1" onchange="mset_ping(this.value)"> 200ms</div>
-               <div style="position:absolute; top:110px; left:170px"><input type="radio" name="ping" value="2" onchange="mset_ping(this.value)"> 500ms</div>
-            </div>
-            <div id="volumeselect" title="volume" style="position:absolute; top:130px; left:10px"><input id="volrange" type="range" value=".5" min="0" max="1" step="0.03125" onchange="mset_volume(this.value);"></div>
-            <div title="Check to train without animations, using sounds only." style="position:absolute; top:130px; left:170px"><input type="checkbox" onchange="mset_blind(this.checked)"> blind</div>
-            <input style="position:absolute; width:240px; top:150px; left:10px; font-family:'RuneScape Chat'; font-size: 16px;" type="submit" value="Credit: runeapps.org start fight!" onclick="drawall(); cooldown=2;document.getElementById('controlls').style.display='none';document.getElementById('stopfight').style.display='block' ;">
-         </div>
-         <input id="stopfight" style="z-index:11; position:absolute; width:240px; top:350px; left:120px; display:none; font-family:'RuneScape Chat'; font-size: 16px;" type="submit" value="Stop Fight " onclick="drawall(); cooldown=100000; document.getElementById('controlls').style.display='block'; document.getElementById('stopfight').style.display='none' ;">
-         <script type="text/javascript">
-            startup();
-         </script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OSRS Jad Simulator — prayer switching practice</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="stylesheet" href="styles.css?v=2">
+</head>
+<body>
+  <div id="viewport">
+    <div id="stage" oncontextmenu="return false">
+      <canvas id="maincvs" width="765" height="503"></canvas>
+      <canvas id="hud" width="765" height="503"></canvas>
+
+      <div id="vids">
+        <video id="mageattack" preload="auto" muted playsinline><source src="jf_mage.mp4" type="video/mp4"></video>
+        <video id="rangeattack" preload="auto" muted playsinline><source src="jf_range.mp4" type="video/mp4"></video>
       </div>
-   </body>
+      <div id="audio">
+        <audio id="a_mage" preload="auto"><source src="a_mage.ogg" type="audio/ogg"></audio>
+        <audio id="a_range" preload="auto"><source src="a_range.ogg" type="audio/ogg"></audio>
+        <audio id="a_deflect" preload="auto"><source src="a_deflect.ogg" type="audio/ogg"></audio>
+        <audio id="a_potion" preload="auto"><source src="a_potion.ogg" type="audio/ogg"></audio>
+      </div>
+
+      <div id="chatbox"></div>
+
+      <!-- setup panel: sits over the game viewport until the fight starts -->
+      <section id="setup" class="overlay" aria-label="Fight setup">
+        <h1>TzTok-Jad practice</h1>
+
+        <div class="row"><span>HP / Prayer</span>
+          <label><input type="radio" name="lvl" value="max" checked> 99/99</label>
+          <label><input type="radio" name="lvl" value="med"> 80/70</label>
+          <label><input type="radio" name="lvl" value="pure"> 85/52</label>
+        </div>
+        <div class="row"><span>Prayer bonus</span>
+          <label><input type="radio" name="bonus" value="0" checked> +0</label>
+          <label><input type="radio" name="bonus" value="15"> +15</label>
+          <label><input type="radio" name="bonus" value="30"> +30</label>
+        </div>
+        <div class="row"><span>Inventory</span>
+          <label><input type="radio" name="inv" value="packed" checked> Packed</label>
+          <label><input type="radio" name="inv" value="normal"> Normal</label>
+          <label><input type="radio" name="inv" value="empty"> Empty</label>
+        </div>
+        <div class="row"><span>Ping</span>
+          <label><input type="radio" name="ping" value="40" checked> 40</label>
+          <label><input type="radio" name="ping" value="200"> 200</label>
+          <label><input type="radio" name="ping" value="500"> 500 ms</label>
+        </div>
+        <div class="row"><span>Reaction</span>
+          <label title="Prayer is checked when the hit lands, about 3.4 s after the animation starts"><input type="radio" name="window" value="3400" checked> Standard</label>
+          <label title="Prayer checked 2.4 s in — simulates late detection"><input type="radio" name="window" value="2400"> Hard</label>
+          <label title="1.8 s"><input type="radio" name="window" value="1800"> Brutal</label>
+        </div>
+        <div class="row"><span>Fight</span>
+          <label><input type="radio" name="fight" value="endless" checked> Endless</label>
+          <label title="Jad has 250 hp. Click him to attack. At half hp four Yt-HurKots spawn beside him and heal him until you click each one to draw it onto you."><input type="radio" name="fight" value="healers"> Kill Jad + healers</label>
+        </div>
+        <div class="row"><span>Weapon</span>
+          <label><input type="radio" name="weapon" value="blowpipe" checked> Blowpipe</label>
+          <label><input type="radio" name="weapon" value="tbow"> Twisted bow</label>
+          <label><input type="radio" name="weapon" value="rcb"> Rune c'bow</label>
+        </div>
+        <div class="row"><span>Audio</span>
+          <input id="volrange" type="range" value="0.5" min="0" max="1" step="0.03125" aria-label="Volume">
+          <label title="No animation — react to sound only"><input type="checkbox" id="blind"> blind</label>
+          <label title="In OSRS the ranged sound plays only after the boulder lands; you must read the animation"><input type="checkbox" id="lateRange" checked> late range sfx</label>
+        </div>
+        <div class="row"><span>Keys</span>
+          <label>Inventory <button class="rsbtn keybind" type="button" id="key-inv" data-bind="inv">F4</button></label>
+          <label>Prayer <button class="rsbtn keybind" type="button" id="key-pray" data-bind="pray">F5</button></label>
+          <span style="color:#b3a88f;font-size:12px">click, then press</span>
+        </div>
+
+        <div class="actions">
+          <button class="rsbtn primary" type="button" id="startfight">Start fight</button>
+          <span id="bestline" style="color:#b3a88f"></span>
+        </div>
+        <p class="credit">Space / P pause · Esc stops. Sim by <a href="https://runeapps.org/jadsim_app" target="_blank" rel="noopener">runeapps.org</a>, OSRS asset swap by <a href="https://github.com/downthecrop/JS-OSRS-Jad-Simulator" target="_blank" rel="noopener">@downthecrop</a>. This fork adds OSRS numbers, reaction stats and the healer phase.</p>
+      </section>
+
+      <button id="stopfight" class="rsbtn" type="button" hidden>Stop fight</button>
+      <span id="pausehint" hidden>Space pauses · Esc stops</span>
+
+      <section id="summary" class="overlay" hidden aria-label="Fight summary">
+        <h1 id="summary-title">Fight over</h1>
+        <p id="summary-sub"></p>
+        <table><tbody id="summary-body"></tbody></table>
+        <div class="actions">
+          <button class="rsbtn primary" type="button" id="again">Fight again</button>
+          <button class="rsbtn" type="button" id="tosetup">Change setup</button>
+        </div>
+      </section>
+    </div>
+  </div>
+  <script src="sim.js?v=2"></script>
+</body>
 </html>

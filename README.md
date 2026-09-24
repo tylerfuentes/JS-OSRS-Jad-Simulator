@@ -1,14 +1,51 @@
-# JS-OSRS-Jad-Simulator
+# OSRS Jad Simulator
 
-Asset swapped RS3 Jad Simulator for Old School Runescape credit: runeapps.org
+Prayer-switching practice for TzTok-Jad, in the browser, with OSRS numbers.
 
-## Blog Post
+Lineage: the original RS3 simulator by [runeapps.org](https://runeapps.org/jadsim_app) → OSRS asset swap by [@downthecrop](https://github.com/downthecrop/JS-OSRS-Jad-Simulator) → this fork, which rewrites the engine and adds feedback.
 
-[https://downthecrop.xyz/blog/osrs-jad-simulator-practice-tool/](https://downthecrop.xyz/blog/osrs-jad-simulator-practice-tool/)
+Open `index.html` (or serve the folder) and press **Start fight**.
 
-## Support
+## What this fork adds
 
-I will not respond to errors or problems on Twitter but you should still follow me. Report problems here
+**OSRS numbers instead of RS3 ones**
+- 99 hp / 99 prayer (or 80/70, 85/52), not 9001 life points.
+- Jad hits up to 97 (ranged) / 95 (magic); attacks every 8 ticks (4.8 s).
+- Protect prayers drain `12 / (2 × prayer bonus + 60)` points per tick — the real formula — with a +0/+15/+30 bonus setting.
+- Saradomin brew heals 15% + 2 (to 115 at 99 hp); super restore gives 25% + 8 prayer; 3-tick potion delay; 1 hp/min regen.
+- Prayer is checked when the hit lands (~3.4 s into the animation), matching the wiki's timing. *Hard* (2.4 s) and *Brutal* (1.8 s) shrink the window.
+- Ranged sound plays only after the boulder lands, as in game, so you have to read the animation (toggle off to get the old early cue).
 
-- Twitter at <a href="http://twitter.com/downthecrop" target="_blank">`@downthecrop`</a>
-- YouTube at <a href="http://youtube.com/downthecrop" target="_blank">`@downthecrop`</a>
+**Feedback**
+- Live HUD: streak, personal best, blocked/attacks, average reaction time on switches.
+- Summary also shows damage dealt and hit rate.
+- End-of-fight summary: accuracy, switches needed, average and fastest reaction, damage taken, potions used, prayer points used, duration.
+- Best streak is remembered between sessions.
+
+**You actually fight**
+- Click Jad to attack; you keep shooting until you click something else. Weapons: toxic blowpipe (2-tick rapid, max 29), twisted bow (5-tick, max 80 on Jad, 30 on healers), rune crossbow (5-tick, max 46). Floating hitsplats and a cooldown pip under your hp bar.
+
+**Healer phase** (*Kill Jad + healers*)
+- Jad has 250 hp. At half, four Yt-HurKots spawn beside him and heal him 5 hp/tick each.
+- Click a healer to shoot it once: that draws it — it stops healing, walks to you over 5 ticks and melees for up to 14 every 4 ticks (Protect from Melee blocks it, but you're busy). Click Jad again to resume on him, or finish the healer (60 hp).
+- If Jad gets back to full while any healer is dead, the dead ones respawn.
+- Win screen on the kill; the summary reports how fast you drew all four, how much he was healed, and what the healers did to you.
+
+**Quality of life**
+- Rebindable inventory / prayer keys (defaults F4 / F5, OSRS's own). Space or P pauses, Esc stops, Enter starts.
+- The 765×503 interface scales to the window.
+- Settings persist. No `eval`, no string-built timers; a drift-corrected tick loop.
+- `window.jadsim` exposes live state and settings for tooling.
+
+## Files
+
+- `index.html` — markup and settings panel
+- `styles.css` — layout and RuneScape-styled panels
+- `sim.js` — engine, drawing, stats
+- everything else — the original sprites, animations and sounds
+
+`fkeyfix.js` from the original is no longer used; key handling lives in `sim.js`.
+
+## License
+
+BSD Zero Clause, as the original. Credit: runeapps.org for the simulator, @downthecrop for the OSRS assets.
