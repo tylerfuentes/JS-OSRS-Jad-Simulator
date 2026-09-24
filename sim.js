@@ -296,6 +296,7 @@
   let binding = null;
   document.querySelectorAll('.keybind').forEach((b) => b.addEventListener('click', () => { binding = b; b.classList.add('listening'); b.textContent = '…'; }));
   window.addEventListener('keydown', (e) => {
+    const lk = $('lastkey'); if (lk) lk.textContent = `last key: ${e.key === ' ' ? 'Space' : e.key} (code ${e.code})`;
     if (binding) {
       e.preventDefault();
       { const k = e.key.length === 1 ? e.key.toUpperCase() : e.key === ' ' ? 'Space' : e.key; if (binding.dataset.bind === 'inv') settings.keyInv = k; else settings.keyPray = k; binding.textContent = k === 'Escape' ? 'Esc' : k; store.set('settings', settings); }
@@ -410,6 +411,7 @@
     readForm(); setVolume(settings.volume); resetState();
     S.running = true; S.startedAt = performance.now(); S.invtab = 1; S.target = null;
     $('setup').hidden = true; $('summary').hidden = true; $('stopfight').hidden = false; $('pausehint').hidden = false;
+    if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
     Object.values(vid).forEach((v) => { v.style.visibility = settings.blind ? 'hidden' : 'visible'; v.style.zIndex = 1; try { v.pause(); v.currentTime = 0; } catch {} });
     say(settings.fight === 'healers' ? 'TzTok-Jad: This is going to hurt... Click him to attack.' : 'Practice mode: Jad attacks every 4.8 s until you stop. Click him to shoot back.');
     drawAll(); nextTickAt = performance.now(); scheduleTick(); cancelAnimationFrame(rafId); hudLoop();
