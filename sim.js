@@ -37,7 +37,7 @@
   const INV = { x: 564, y: 213, cols: 4, rows: 7, dx: 42, dy: 36, size: 32 };
   const PRAY_ROW = { y: 317, h: 36, x0: 589, dx: 37 };      // protect prayers are the 2nd–4th icons of the 4th row
   const PRAY_ON = { y: 323, x: [null, 587, 624, 661] };
-  const JAD_BOX = { x: 22, y: 18, w: 116, h: 96 };                       // where Jad stands in the animation
+  const JAD_BOX = { x: 8, y: 8, w: 150, h: 130 };                       // where Jad stands in the animation
   const HEALER_HOME = [[150, 52], [154, 96], [120, 128], [70, 130]];       // spawn beside Jad
   const HEALER_DRAWN = [[214, 150], [300, 150], [222, 188], [292, 188]];   // where they stop once drawn to you
   const PLAYER_POS = [256, 128];
@@ -60,7 +60,7 @@
   const SETTINGS_VERSION = 3;
   const settings = Object.assign({
     lvl: 'max', bonus: 0, inv: 'packed', ping: 40, window: 3400, fight: 'healers', weapon: 'blowpipe',
-    volume: 0.5, blind: false, lateRange: true, keyInv: 'Escape', keyPray: '1', autoReturn: false,
+    volume: 0.5, blind: false, lateRange: true, keyInv: 'Escape', keyPray: '1', autoReturn: false, immortal: true,
   }, store.get('settings', {}));
   if ((settings.v || 1) < 2) { settings.fight = 'healers'; settings.keyInv = 'Escape'; settings.keyPray = '1'; }
   if ((settings.v || 1) < 3) { settings.autoReturn = false; }
@@ -71,14 +71,14 @@
     for (const name of ['lvl', 'bonus', 'inv', 'ping', 'window', 'fight', 'weapon']) {
       const el = document.querySelector(`input[name="${name}"][value="${settings[name]}"]`); if (el) el.checked = true;
     }
-    $('volrange').value = settings.volume; $('blind').checked = settings.blind; $('lateRange').checked = settings.lateRange; $('autoReturn').checked = settings.autoReturn;
+    $('volrange').value = settings.volume; $('blind').checked = settings.blind; $('lateRange').checked = settings.lateRange; $('autoReturn').checked = settings.autoReturn; $('immortal').checked = settings.immortal;
     const show = (k) => (k === 'Escape' ? 'Esc' : k); $('key-inv').textContent = show(settings.keyInv); $('key-pray').textContent = show(settings.keyPray);
     $('bestline').textContent = bestStreak ? `Best streak: ${bestStreak}` : '';
   }
   function readForm() {
     for (const name of ['lvl', 'inv', 'fight', 'weapon']) settings[name] = document.querySelector(`input[name="${name}"]:checked`).value;
     for (const name of ['bonus', 'ping', 'window']) settings[name] = Number(document.querySelector(`input[name="${name}"]:checked`).value);
-    settings.volume = Number($('volrange').value); settings.blind = $('blind').checked; settings.lateRange = $('lateRange').checked; settings.autoReturn = $('autoReturn').checked;
+    settings.volume = Number($('volrange').value); settings.blind = $('blind').checked; settings.lateRange = $('lateRange').checked; settings.autoReturn = $('autoReturn').checked; settings.immortal = $('immortal').checked;
     store.set('settings', settings);
   }
   function setVolume(v) { const a = v * v * v; Object.values(snd).forEach((s) => { s.volume = a; }); }
@@ -192,7 +192,10 @@
     // healers
     const now = performance.now(), tt = now / 300;
     S.healers.forEach((h) => {
-      if (h.state === 'dead') return;
+      if (h.state === 'dead') {
+        if (h.diedAt && now - h.diedAt < 4000) { const [x, y] = h.deathPos; hctx.font = '13px "RuneScape Chat", monospace'; line('☠ Yt-HurKot killed', x - 36, y - 8, '#ff5a3c'); hctx.font = '15px "RuneScape Chat", monospace'; }
+        return;
+      }
       const [x, y] = h.pos;
       const isTarget = S.target === h;
       if (h.state === 'healing') { hctx.strokeStyle = `rgba(80,255,120,${0.5 + 0.5 * Math.sin(tt + h.i)})`; hctx.lineWidth = 2; hctx.beginPath(); hctx.arc(x, y, 15 + 2 * Math.sin(tt + h.i), 0, Math.PI * 2); hctx.stroke(); }
@@ -251,7 +254,7 @@
   }
   function setTarget(tgt) {
     if (!S.running || S.paused) return;
-    delayed(() => { if (tgt === 'jad' ? !S.jadDead : tgt.state !== 'dead') S.target = tgt; });
+    delayed(() => { if (tgt === 'jad' ? !S.jadDead : tgt.state !== 'dead') { if (S.target !== tgt) say(tgt === 'jad' ? 'You attack TzTok-Jad.' : 'You attack the Yt-HurKot.'); S.target = tgt; } });
   }
   function playerAttack() {
     const w = WEAPONS[settings.weapon], tgt = S.target;
@@ -270,9 +273,9 @@
       }
     } else {
       if (tgt.state === 'healing') { tgt.state = 'walking'; tgt.drawnTick = S.tick; say('The Yt-HurKot stops healing Jad and turns on you.'); if (settings.autoReturn && !S.jadDead) S.target = 'jad'; if (S.healers.every((h) => h.state !== 'healing')) S.stats.drawMs = performance.now() - S.healersAt; }
-      tgt.hp -= dmg; S.stats.dealt += dmg;
+      tgt.hp = settings.immortal ? Math.max(1, tgt.hp - dmg) : tgt.hp - dmg; S.stats.dealt += dmg;
       S.floats.push({ x: tgt.pos[0], y: tgt.pos[1], value: dmg, until: performance.now() + 1200 });
-      if (tgt.hp <= 0) { tgt.state = 'dead'; S.target = null; say('You kill the Yt-HurKot.'); }
+      if (tgt.hp <= 0) { tgt.state = 'dead'; tgt.diedAt = performance.now(); tgt.deathPos = tgt.pos.slice(); S.target = null; say('You KILLED a Yt-HurKot. If Jad is healed to full, it comes back when he drops below half.', true); }
     }
   }
   function playSound(name) { const s = snd[name]; try { s.currentTime = 0; s.play().catch(() => {}); } catch {} }

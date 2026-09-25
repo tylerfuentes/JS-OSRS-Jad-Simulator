@@ -69,6 +69,7 @@
           <label title="No animation — react to sound only"><input type="checkbox" id="blind"> blind</label>
           <label title="In OSRS the ranged sound plays only after the boulder lands; you must read the animation"><input type="checkbox" id="lateRange" checked> late range sfx</label>
           <label title="After the shot that draws a healer, your target snaps back to Jad so the healer stays alive on you"><input type="checkbox" id="autoReturn"> auto back to Jad after tag</label>
+          <label title="Healers can't drop below 1 hp, so staying on one after tagging never kills it. Turn off for the real thing: 60 hp, and a killed healer returns if Jad is healed to full"><input type="checkbox" id="immortal" checked> invulnerable healers</label>
         </div>
         <div class="row"><span>Keys</span>
           <label>Inventory <button class="rsbtn keybind" type="button" id="key-inv" data-bind="inv">Esc</button></label>
@@ -98,6 +99,6 @@
       </section>
     </div>
   </div>
-  <script src="sim.js?v=10"></script>
+  <script src="sim.js?v=11"></script>
 </body>
 </html>

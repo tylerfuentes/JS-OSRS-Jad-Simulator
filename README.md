@@ -29,6 +29,7 @@ Open `index.html` (or serve the folder) and press **Start fight**.
 - Jad has 250 hp. At half, four Yt-HurKots spawn beside him and heal him 5 hp/tick each.
 - Cardinal rule, enforced: a healer that is on you cannot heal Jad. A counter beside his HP bar shows how many are healing / on you / dead at every moment.
 - Click a healer to shoot it once: that draws it — it stops healing for good, walks to you over 5 ticks and stays on you, meleeing for up to 14 every 4 ticks (Protect from Melee blocks it, but you're busy). It never goes back to Jad. Click Jad again to resume on him, or finish the healer (60 hp).
+- *Invulnerable healers* (default on) keeps them at 1 hp minimum so tag-and-park practice can't kill one by accident; turn it off for the real rule below.
 - Like in game, you keep attacking whatever you last clicked — after tagging a healer, click Jad to get back on him (or it dies in a few more shots). *Auto back to Jad after tag* in setup does the click for you if you want it.
 - If Jad is healed back to full while any healer is dead, the dead ones return the next time he drops below half — the wiki's rule.
 - Win screen on the kill; the summary reports how fast you drew all four, how much he was healed, and what the healers did to you.
