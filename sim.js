@@ -57,12 +57,14 @@
     get(k, d) { try { const v = localStorage.getItem('jadsim.' + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
     set(k, v) { try { localStorage.setItem('jadsim.' + k, JSON.stringify(v)); } catch {} },
   };
-  const SETTINGS_VERSION = 2;
+  const SETTINGS_VERSION = 3;
   const settings = Object.assign({
     lvl: 'max', bonus: 0, inv: 'packed', ping: 40, window: 3400, fight: 'healers', weapon: 'blowpipe',
-    volume: 0.5, blind: false, lateRange: true, keyInv: 'Escape', keyPray: '1', autoReturn: true,
+    volume: 0.5, blind: false, lateRange: true, keyInv: 'Escape', keyPray: '1', autoReturn: false,
   }, store.get('settings', {}));
-  if ((settings.v || 1) < SETTINGS_VERSION) { settings.fight = 'healers'; settings.keyInv = 'Escape'; settings.keyPray = '1'; settings.v = SETTINGS_VERSION; store.set('settings', settings); }
+  if ((settings.v || 1) < 2) { settings.fight = 'healers'; settings.keyInv = 'Escape'; settings.keyPray = '1'; }
+  if ((settings.v || 1) < 3) { settings.autoReturn = false; }
+  if ((settings.v || 1) < SETTINGS_VERSION) { settings.v = SETTINGS_VERSION; store.set('settings', settings); }
   let bestStreak = store.get('bestStreak', 0);
 
   function applySettingsToForm() {
