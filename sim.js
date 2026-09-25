@@ -183,7 +183,9 @@
     // Jad hp
     if (settings.fight === 'healers') {
       const bx = VIEW.x + 10, by = VIEW.y + VIEW.h - 26, bw = 160;
+      const nHeal = S.healers.filter((h) => h.state === 'healing').length, nOn = S.healers.filter((h) => h.state === 'walking' || h.state === 'attacking').length, nDead = S.healers.filter((h) => h.state === 'dead').length;
       line(`TzTok-Jad ${Math.max(0, Math.ceil(S.jadHp))}/${JAD_HP}`, bx, by - 16, '#e8dcc0');
+      if (S.healersSpawned) line(`healing him: ${nHeal}   on you: ${nOn}   dead: ${nDead}`, bx + 170, by - 2, nHeal ? '#7dff9a' : '#a9bfb5');
       hctx.fillStyle = '#3b0d05'; hctx.fillRect(bx, by, bw, 8);
       hctx.fillStyle = S.jadHp > JAD_HP / 2 ? '#3fbf3f' : '#d43b1c'; hctx.fillRect(bx, by, bw * Math.max(0, S.jadHp) / JAD_HP, 8);
     }
